@@ -49,7 +49,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         if(!memberType) throw new Error(`Member type with id=${id} not exist`);
         return memberType;
       } catch(err) {
-        if (err instanceof Error) return fastify.httpErrors.notFound(err.message);
+        if (err instanceof Error) return fastify.httpErrors.badRequest(err.message);
         return fastify.httpErrors.internalServerError();
       }
     }

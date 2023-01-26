@@ -40,7 +40,12 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     },
     async function (request, reply): Promise<ProfileEntity | HttpError> {
       const profileBody = request.body;
+      const { userId, memberTypeId } = profileBody;
       try {
+        const memberTypes = await fastify.db.memberTypes.findOne({key: 'id', equals: memberTypeId });
+        if(!memberTypes) throw new Error(`Member type with id=${memberTypeId} not exist`);
+        const foundProfile = await fastify.db.profiles.findOne({key: 'userId', equals: userId });
+        if(foundProfile) throw new Error(`Profile with userId=${memberTypeId} already exist`);
         const profile = await fastify.db.profiles.create(profileBody);
         if(!profile) throw new Error(`User not created`);
         reply.code(201);
@@ -66,9 +71,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         if(!profile) throw new Error(`user with id=${id} not exist`);
         return profile;   
       } catch(err) {
-        if (err instanceof Error) {
-          return fastify.httpErrors.notFound(err.message);
-        } 
+        if (err instanceof Error) return fastify.httpErrors.badRequest(err.message);
         return fastify.httpErrors.internalServerError();
       }
     }
@@ -87,7 +90,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       const postBody = request.body;
 
       try {
-        return fastify.db.profiles.change(id, postBody);
+       const profile = await fastify.db.profiles.change(id, postBody);
+       return profile;
       } catch(err) {
           if (err instanceof Error) return fastify.httpErrors.badRequest(err.message);
           return fastify.httpErrors.internalServerError();
