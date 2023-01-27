@@ -67,7 +67,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         return post;   
       } catch(err) {
         if (err instanceof Error) {
-          return fastify.httpErrors.notFound(err.message);
+          return fastify.httpErrors.badRequest(err.message);
         } 
         return fastify.httpErrors.internalServerError();
       }
@@ -87,7 +87,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       const postBody = request.body;
 
       try {
-        return fastify.db.posts.change(id, postBody);
+        const post = await fastify.db.posts.change(id, postBody);
+        return post
       } catch(err) {
           if (err instanceof Error) return fastify.httpErrors.badRequest(err.message);
           return fastify.httpErrors.internalServerError();

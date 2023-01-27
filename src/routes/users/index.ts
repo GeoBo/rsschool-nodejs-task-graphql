@@ -70,10 +70,26 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       try {
         const user = await fastify.db.users.delete(id);
         if(!user) throw new Error(`user with id=${id} not exist`);
+        
+        const profile = await fastify.db.profiles.findOne({key: 'userId', equals: id })
+        if(profile) await fastify.db.profiles.delete(profile.id);
+        
+        const posts = await fastify.db.posts.findMany({key: 'userId', equals: id });
+        posts.forEach(async(post) => {
+          await fastify.db.posts.delete(post.id);
+        })
+
+        const relatedUsers = await fastify.db.users.findMany({key: 'subscribedToUserIds', inArray: id });
+        relatedUsers.forEach(async(user) => {
+          const pos = user.subscribedToUserIds.indexOf(id);
+          const subscribedToUserIds = user.subscribedToUserIds;
+          subscribedToUserIds.splice(pos, 1);
+          await fastify.db.users.change(user.id, {subscribedToUserIds});
+        })
         return user;   
       } catch(err) {
         if (err instanceof Error) {
-          return fastify.httpErrors.notFound(err.message);
+          return fastify.httpErrors.badRequest(err.message);
         } 
         return fastify.httpErrors.internalServerError();
       }
@@ -93,14 +109,14 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       const userId = request.body.userId;
       if(id === userId) return fastify.httpErrors.badRequest("you can't subscribe to yourself");
       try {
-        const user = await fastify.db.users.findOne({key: 'id', equals: id });
-        const targetUser = await fastify.db.users.findOne({key: 'id', equals: userId });
+        const user = await fastify.db.users.findOne({key: 'id', equals: userId });
         if(!user) throw new Error(`user with id=${id} not exist`);
+        const targetUser = await fastify.db.users.findOne({key: 'id', equals: id });
         if(!targetUser) throw new Error(`user with id=${userId} not exist`);
-        if(user.subscribedToUserIds.indexOf(userId) == -1) {
+        if(user.subscribedToUserIds.indexOf(id) == -1) {
           const subscribedToUserIds = user.subscribedToUserIds;
-          subscribedToUserIds.push(userId);
-          return fastify.db.users.change(id, {subscribedToUserIds});
+          subscribedToUserIds.push(id);
+          return fastify.db.users.change(userId, {subscribedToUserIds});
         }
         return user;
       } catch(err) {
@@ -125,17 +141,17 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       const userId = request.body.userId;
       if(id === userId) return fastify.httpErrors.badRequest("you can't unsubscribe from yourself");
       try {
-        const user = await fastify.db.users.findOne({key: 'id', equals: id });
-        const targetUser = await fastify.db.users.findOne({key: 'id', equals: userId });
+        const user = await fastify.db.users.findOne({key: 'id', equals: userId });
         if(!user) throw new Error(`user with id=${id} not exist`);
+        const targetUser = await fastify.db.users.findOne({key: 'id', equals: id });    
         if(!targetUser) throw new Error(`user with id=${userId} not exist`);
-        const pos = user.subscribedToUserIds.indexOf(userId);
+        const pos = user.subscribedToUserIds.indexOf(id);
         if(pos !== -1) {
           const subscribedToUserIds = user.subscribedToUserIds;
           subscribedToUserIds.splice(pos, 1);
-          return fastify.db.users.change(id, {subscribedToUserIds});
+          return fastify.db.users.change(userId, {subscribedToUserIds});
         }
-        return user;
+        return fastify.httpErrors.badRequest('userId is valid but our user is not following him');
       } catch(err) {
         if (err instanceof Error) {
           return fastify.httpErrors.notFound(err.message);
@@ -158,7 +174,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       const userBody = request.body;
 
       try {
-        return fastify.db.users.change(id, userBody);
+         const user = await fastify.db.users.change(id, userBody);
+         return user;
       } catch(err) {
           if (err instanceof Error) return fastify.httpErrors.badRequest(err.message);
           return fastify.httpErrors.internalServerError();
