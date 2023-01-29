@@ -1,4 +1,4 @@
-import { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLList, GraphQLInt, GraphQLInputObjectType } from 'graphql/type';
+import { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLList, GraphQLInt } from 'graphql/type';
 
 const userType = new GraphQLObjectType({
   name: 'User',
@@ -45,45 +45,43 @@ const memberTypeType = new GraphQLObjectType({
   }
 });
 
-const userBodyType = new GraphQLInputObjectType({
-  name: 'UserBody',
+const allAboutUserType = new GraphQLObjectType({
+  name: 'AllAboutUser',
   fields: {
+    id: { type: GraphQLID },
     firstName: { type: GraphQLString },
     lastName: { type: GraphQLString },
     email: { type: GraphQLString },
+    subscribedToUser: { type: new GraphQLList(GraphQLString) },
+    subscribedToUserIds: { type: new GraphQLList(GraphQLString) },
+    userSubscribedTo: { type: new GraphQLList(GraphQLString) },
+    
+    profile: {
+      type: profileType,
+    },
+    posts: {
+      type: new GraphQLList(postType),
+    },
+    memberType: {
+      type: memberTypeType,
+    }
   }
 });
 
-const profileBodyType = new GraphQLInputObjectType({
-  name: 'ProfileBody',
-  fields: {
-    avatar: { type: GraphQLString },
-    sex: { type: GraphQLString },
-    birthday: { type: GraphQLInt },
-    country: { type: GraphQLString },
-    street: { type: GraphQLString },
-    city: { type: GraphQLString },
-    memberTypeId: { type: GraphQLString },
-    userId: { type: GraphQLString },
-  }
-});
+// const userSubscribedType = new GraphQLObjectType({
+//   name: 'AllAboutUser',
+//   fields: {
+//     id: { type: GraphQLID },
+//     firstName: { type: GraphQLString },
+//     lastName: { type: GraphQLString },
+//     email: { type: GraphQLString },
+//     subscribedToUserIds: { type: new GraphQLList(GraphQLString) },
+//     userSubscribedTo: { type: new GraphQLList(GraphQLString) },
+//     profile: {
+//       type: profileType,
+//     },
+//   }
+// });
 
-const postBodyType = new GraphQLInputObjectType({
-  name: 'PostBody',
-  fields: {
-    title: { type: GraphQLString },
-    content: { type: GraphQLString },
-    userId: { type: GraphQLString },
-  }
-});
-
-const memberTypeBodyType = new GraphQLInputObjectType({
-  name: 'MemberTypeBody',
-  fields: {
-    discount: { type: GraphQLInt },
-    monthPostsLimit: { type: GraphQLInt },
-  }
-});
-
-export {userType, profileType, postType, memberTypeType, 
-        userBodyType, profileBodyType, postBodyType, memberTypeBodyType}
+export {userType, profileType, postType, memberTypeType, allAboutUserType}
+        

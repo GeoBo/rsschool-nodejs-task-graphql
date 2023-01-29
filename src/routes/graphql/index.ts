@@ -2,8 +2,9 @@ import { FastifyPluginAsyncJsonSchemaToTs } from '@fastify/type-provider-json-sc
 import { ExecutionResult } from 'graphql/execution';
 import { graphql } from 'graphql/graphql';
 import { GraphQLList, GraphQLObjectType, GraphQLSchema, GraphQLID } from 'graphql/type';
+import { memberTypeBodyType, postBodyType, profileBodyType, userBodyType } from './input-types';
 import { graphqlBodySchema } from './schema';
-import { memberTypeType, postType, profileType, userType, userBodyType, profileBodyType, postBodyType, memberTypeBodyType } from './types';
+import { allAboutUserType, memberTypeType, postType, profileType, userType } from './types';
 
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
@@ -36,16 +37,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
             args: {
               id: { type: GraphQLID },
             },
-            resolve: async (_, { id }) => {
-              try {              
-                if(!id) throw new Error(`ID required`);
-                const user = await fastify.db.users.findOne({key: 'id', equals: id });
-                if(!user) throw new Error(`User with id=${id} not exist`);
-                return user;
-              } catch(err) {
-                  if (err instanceof Error) return fastify.httpErrors.notFound(err.message);
-                  return fastify.httpErrors.internalServerError();
-              }
+            resolve: async (_, { id }) => {             
+              if(!id) throw new Error(`ID required`);
+              const user = await fastify.db.users.findOne({key: 'id', equals: id });
+              if(!user) throw new Error(`User with id=${id} not exist`);
+              return user;
             },
           },
 
@@ -62,14 +58,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
               id: { type: GraphQLID },
             },
             resolve: async (_, { id }) => {
-              try {
-                const profile = await fastify.db.profiles.findOne({key: 'id', equals: id });
-                if(!profile) throw new Error(`Profile with id=${id} not exist`);
-                return profile;
-              } catch(err) {
-                  if (err instanceof Error) return fastify.httpErrors.notFound(err.message);
-                  return fastify.httpErrors.internalServerError();
-              }
+              const profile = await fastify.db.profiles.findOne({key: 'id', equals: id });
+              if(!profile) throw new Error(`Profile with id=${id} not exist`);
+              return profile;
             },
           },
 
@@ -86,14 +77,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
               id: { type: GraphQLID },
             },
             resolve: async (_, { id }) => {
-              try {
-                const post = await fastify.db.posts.findOne({key: 'id', equals: id });
-                if(!post) throw new Error(`Post with id=${id} not exist`);
-                return post;
-              } catch(err) {
-                if (err instanceof Error) return fastify.httpErrors.notFound(err.message);
-                return fastify.httpErrors.internalServerError();
-              }
+              const post = await fastify.db.posts.findOne({key: 'id', equals: id });
+              if(!post) throw new Error(`Post with id=${id} not exist`);
+              return post;
             },
           },
 
@@ -101,7 +87,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
 
           memberTypes: {
             type: new GraphQLList(memberTypeType),
-            resolve: (args, context, info) => fastify.db.memberTypes.findMany(),
+            resolve: () => fastify.db.memberTypes.findMany(),
           },
 
           memberType: {
@@ -110,16 +96,101 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
               id: { type: GraphQLID },
             },
             resolve: async (_, { id }) => {
-              try {
-                const memberType = await fastify.db.memberTypes.findOne({key: 'id', equals: id });
-                if(!memberType) throw new Error(`Member type with id=${id} not exist`);
-                return memberType;
-              } catch(err) {
-                if (err instanceof Error) return fastify.httpErrors.notFound(err.message);
-                return fastify.httpErrors.internalServerError();
-              }
+              const memberType = await fastify.db.memberTypes.findOne({key: 'id', equals: id });
+              if(!memberType) throw new Error(`Member type with id=${id} not exist`);
+              return memberType;
             },
           },
+
+          getAllAboutUsers: {
+            type: new GraphQLList(allAboutUserType),
+            resolve: async () => {
+              const users = await fastify.db.users.findMany();
+              const allAboutUsers = users.map(async(user) => {
+                let memberType = null;
+                const profile = await fastify.db.profiles.findOne({key: 'userId', equals: user.id });   
+                if(profile) {
+                  memberType = await fastify.db.memberTypes.findOne({key: 'id', equals: profile.memberTypeId });
+                }
+                const posts = await fastify.db.posts.findMany({key: 'userId', equals: user.id });
+                return {...user, profile, posts, memberType}
+              }) 
+              return allAboutUsers;
+            }
+          },
+
+          getAllAboutUser: {
+            type: allAboutUserType,
+            args: {
+              id: { type: GraphQLID },
+            },
+            resolve: async (source, args) => {
+              const id = args?.id;
+              const user = await fastify.db.users.findOne({key: 'id', equals: id });
+              if(!user) throw new Error(`User with id=${id} not exist`);
+              
+              let memberType = null;
+              const profile = await fastify.db.profiles.findOne({key: 'userId', equals: user.id });   
+              if(profile) {
+                memberType = await fastify.db.memberTypes.findOne({key: 'id', equals: profile.memberTypeId });
+              }
+              const posts = await fastify.db.posts.findMany({key: 'userId', equals: user.id });
+              return {...user, profile, posts, memberType}
+            }
+          },
+
+          getUsersSubsAndProfile: {
+            type: new GraphQLList(allAboutUserType),
+            resolve: async () => {
+              const users = await fastify.db.users.findMany();
+              const allAboutUsers = users.map(async(user) => {
+                const relatedUsers = await fastify.db.users.findMany({key: 'subscribedToUserIds', inArray: user.id });
+                
+                let userSubscribedTo: string[] = [];
+                relatedUsers.forEach(async(relatedUser) => {
+                  userSubscribedTo.push(relatedUser.id);
+                })
+
+                const profile = await fastify.db.profiles.findOne({key: 'userId', equals: user.id });   
+                return {...user, userSubscribedTo, profile}
+              }) 
+              return allAboutUsers;
+            }
+          },
+
+          getUserPostsSubs: {
+            type: allAboutUserType,
+            args: {
+              id: { type: GraphQLID },
+            },
+            resolve: async (source, args) => {
+              const id = args?.id;
+              const user = await fastify.db.users.findOne({key: 'id', equals: id });
+              if(!user) throw new Error(`User with id=${id} not exist`);
+              
+              const posts = await fastify.db.posts.findMany({key: 'userId', equals: user.id });
+              return {...user, subscribedToUser: user.subscribedToUserIds , posts}
+            }
+          },
+
+          getUsersWithSubs: {
+            type: new GraphQLList(allAboutUserType),
+            resolve: async () => {
+              const users = await fastify.db.users.findMany();
+              const allAboutUsers = users.map(async(user) => {
+                const relatedUsers = await fastify.db.users.findMany({key: 'subscribedToUserIds', inArray: user.id });
+                
+                let userSubscribedTo: string[] = [];
+                relatedUsers.forEach(async(relatedUser) => {
+                  userSubscribedTo.push(relatedUser.id);
+                })
+
+                return {...user, userSubscribedTo, subscribedToUser: user.subscribedToUserIds}
+              }) 
+              return allAboutUsers;
+            }
+          },
+          
         }),
       });
 
@@ -136,16 +207,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
               input: { type: userBodyType }
             },
             resolve: async (source, args) => {
-              try {
-                const userBody = args?.input;
-                const user = await fastify.db.users.create(userBody);
-                if(!user) throw new Error(`User not created`);
-                reply.code(201);
-                return user;
-              } catch(err) {
-                  if (err instanceof Error) return fastify.httpErrors.badRequest(err.message);
-                  return fastify.httpErrors.internalServerError();
-              }
+              const userBody = args?.input;
+              const user = await fastify.db.users.create(userBody);
+              if(!user) throw new Error(`User not created`);
+              return user;
             }
           },
 
@@ -157,18 +222,12 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
               body: { type: userBodyType }
             },
             resolve: async (source, args) => {
-
-              try {
-                const id = args.id
-                const userBody = args.body;
-                const checkUser = await fastify.db.users.findOne({key: 'id', equals: id });
-                if(!checkUser) throw new Error(`User with id=${id} not exist`);
-                const user = await fastify.db.users.change(id, userBody);
-                return user;
-              } catch(err) {
-                  if (err instanceof Error) return fastify.httpErrors.badRequest(err.message);
-                  return fastify.httpErrors.internalServerError();
-              }
+              const id = args?.id
+              const userBody = args?.body;
+              const checkUser = await fastify.db.users.findOne({key: 'id', equals: id });
+              if(!checkUser) throw new Error(`User with id=${id} not exist`);
+              const user = await fastify.db.users.change(id, userBody);
+              return user;
             }
           },
 
@@ -180,26 +239,20 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
               input: { type: profileBodyType }
             },
             resolve: async (source, args) => {
-              try {
-                const profileBody = args?.input;
-                const { userId, memberTypeId } = profileBody;
-                const user = await fastify.db.users.findOne({key: 'id', equals: userId });
-                if(!user) throw new Error(`User with id=${userId} not exist`);
+              const profileBody = args?.input;
+              const { userId, memberTypeId } = profileBody;
+              const user = await fastify.db.users.findOne({key: 'id', equals: userId });
+              if(!user) throw new Error(`User with id=${userId} not exist`);
+        
+              const memberTypes = await fastify.db.memberTypes.findOne({key: 'id', equals: memberTypeId });
+              if(!memberTypes) throw new Error(`Member type with id=${memberTypeId} not exist`);
           
-                const memberTypes = await fastify.db.memberTypes.findOne({key: 'id', equals: memberTypeId });
-                if(!memberTypes) throw new Error(`Member type with id=${memberTypeId} not exist`);
-            
-                const foundProfile = await fastify.db.profiles.findOne({key: 'userId', equals: userId });
-                if(foundProfile) throw new Error(`Profile with userId=${memberTypeId} already exist`);
-                
-                const profile = await fastify.db.profiles.create(profileBody);
-                if(!profile) throw new Error(`User not created`);
-                reply.code(201);
-                return profile;
-              } catch(err) {
-                if (err instanceof Error) return fastify.httpErrors.badRequest(err.message);
-                return fastify.httpErrors.internalServerError();
-              }
+              const foundProfile = await fastify.db.profiles.findOne({key: 'userId', equals: userId });
+              if(foundProfile) throw new Error(`Profile with userId=${memberTypeId} already exist`);
+              
+              const profile = await fastify.db.profiles.create(profileBody);
+              if(!profile) throw new Error(`User not created`);
+              return profile;
             }
           },
 
@@ -210,7 +263,6 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
               body: { type: profileBodyType }
             },
             resolve: async (source, args) => { 
-              try {
                 const id = args?.id
                 const profileBody = args?.body;
                 const checkProfile = await fastify.db.profiles.findOne({key: 'id', equals: id });
@@ -218,10 +270,6 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
 
                 const profile = await fastify.db.profiles.change(id, profileBody);
                 return profile;
-              } catch(err) {
-                  if (err instanceof Error) return fastify.httpErrors.badRequest(err.message);
-                  return fastify.httpErrors.internalServerError();
-              }
             }
           },
 
@@ -233,19 +281,13 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
               input: { type: postBodyType }
             },
             resolve: async (source, args) => {
-              try {
-                const postBody = args?.input;
-                const user = await fastify.db.users.findOne({key: 'id', equals: postBody.userId });
-                if(!user) throw new Error(`User with id=${postBody.userId} not exist`);
-                
-                const post = await fastify.db.posts.create(postBody);
-                if(!post) throw new Error(`User not created`);
-                reply.code(201);
-                return post;
-              } catch(err) {
-                  if (err instanceof Error) return fastify.httpErrors.badRequest(err.message);
-                  return fastify.httpErrors.internalServerError();
-              }    
+              const postBody = args?.input;
+              const user = await fastify.db.users.findOne({key: 'id', equals: postBody.userId });
+              if(!user) throw new Error(`User with id=${postBody.userId} not exist`);
+              
+              const post = await fastify.db.posts.create(postBody);
+              if(!post) throw new Error(`User not created`);
+              return post;
             }
           },
 
@@ -256,17 +298,12 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
               body: { type: postBodyType }
             },
             resolve: async (source, args) => {        
-              try {
-                const id = args?.id
-                const postBody = args?.body;
-                const checkPost = await fastify.db.posts.findOne({key: 'id', equals: id });
-                if(!checkPost) throw new Error(`Post with id=${postBody.userId} not exist`);
-                const post = await fastify.db.posts.change(id, postBody);
-                return post
-              } catch(err) {
-                  if (err instanceof Error) return fastify.httpErrors.badRequest(err.message);
-                  return fastify.httpErrors.internalServerError();
-              }
+              const id = args?.id
+              const postBody = args?.body;
+              const checkPost = await fastify.db.posts.findOne({key: 'id', equals: id });
+              if(!checkPost) throw new Error(`Post with id=${postBody.userId} not exist`);
+              const post = await fastify.db.posts.change(id, postBody);
+              return post
             },   
           },
 
@@ -278,19 +315,15 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
               id: { type: GraphQLID },
               body: { type: memberTypeBodyType }
             },
-            resolve: async (source, args) => {        
-              try {
-                const id = args?.id
-                const memberTypeBody = args?.body;
-                const checkMemberType = await fastify.db.memberTypes.findOne({key: 'id', equals: id });
-                if(!checkMemberType) throw new Error(`Member type with id=${id} not exist`);
-                const memberType = await fastify.db.memberTypes.change(id, memberTypeBody);
-                if(!memberType) throw new Error(`Member type with id=${id} not exist`);
-                return memberType;
-              } catch(err) {
-                if (err instanceof Error) return fastify.httpErrors.badRequest(err.message);
-                return fastify.httpErrors.internalServerError();
-              }
+            resolve: async (source, args: Record<string, unknown>) => {        
+              const id = args?.id as string;
+              const memberTypeBody = args?.body as Record<string, unknown>;
+              const checkMemberType = await fastify.db.memberTypes.findOne({key: 'id', equals: id });
+              if(!checkMemberType) throw new Error(`Member type with id=${id} not exist`);
+              
+              const memberType = await fastify.db.memberTypes.change(id, memberTypeBody);
+              if(!memberType) throw new Error(`Member type with id=${id} not exist`);
+              return memberType;
             }
           },
 
@@ -301,7 +334,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         query: queryType,
         mutation: mutationType,
         types: [userType, profileType, postType, memberTypeType, userBodyType, 
-                profileBodyType, postBodyType, memberTypeBodyType],
+                profileBodyType, postBodyType, memberTypeBodyType, allAboutUserType],
       });
 
       return await graphql({ schema, source, variableValues }).then((response: ExecutionResult) => {
@@ -317,31 +350,3 @@ type Variables = {
 } | undefined
 
 export default plugin;
-
-      // const = new GraphQLSchema({
-      //   query: MyAppQueryRootType
-      //   mutation: MyAppMutationRootType
-      // });
-
-      // const schema = buildSchema(`
-      //   type Query {
-      //     users: String
-      //   }
-      // `);
-
-      // const rootValue = { users: () => 'Hello world!' };
-
-      // return await graphql({
-      //   schema: StarWarsSchema,
-      //   source: String(request.body.query),
-      //   contextValue: fastify,
-      //   variableValues: 'qwer'
-      // });
-      // resolve(source, args, context){
-
-      // context.inject({
-      //   method: 'POST',
-      //   url: '/users',
-      //   payload: args,
-      // })
-      // }
