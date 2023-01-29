@@ -1,0 +1,504 @@
+{
+	"info": {
+		"_postman_id": "70556e69-3d58-43a1-99c2-dd512747a4df",
+		"name": "GraphQL",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24975177"
+	},
+	"item": [
+		{
+			"name": "getAllEntities",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query AllEntitiesIds {\r\n    users {id}\r\n    profiles {id}\r\n    posts {id}\r\n    memberTypes {id}\r\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getEntitiesById",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query searchById($userId: ID, \r\n                          $profileId: ID,  \r\n                          $postId: ID\r\n                          $memberTypeId: ID) \r\n{\r\n    user(id: $userId) {id}\r\n    profile(id: $profileId) {id}\r\n    post(id: $postId) {id}\r\n    memberType(id: $memberTypeId) {id}\r\n}",
+						"variables": "{\r\n    \"userId\":\"101ba33c-a683-4060-a661-f4ce93ecd57c\",\r\n    \"profileId\":\"a91f19d0-0038-4a54-8299-446bb54b025f\",\r\n    \"postId\":\"354d50cb-9942-4c91-bd25-61359d523ca7\",\r\n    \"memberTypeId\":\"basic\"\r\n}"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getAllAboutUsers",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query {\r\n    getAllAboutUsers {\r\n        id\r\n        firstName\r\n        lastName\r\n        email\r\n        subscribedToUserIds\r\n        profile {\r\n            id\r\n            avatar\r\n        }\r\n        posts {\r\n            id\r\n            title\r\n        }\r\n        memberType {\r\n            id\r\n            discount\r\n        }\r\n    }\r\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getAllAboutUser",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query ($id: ID) {\r\n    getAllAboutUser (id: $id) {\r\n        id\r\n        firstName\r\n        lastName\r\n        email\r\n        subscribedToUserIds\r\n        profile {\r\n            id\r\n            avatar\r\n        }\r\n        posts {\r\n            id\r\n            title\r\n        }\r\n        memberType {\r\n            id\r\n            discount\r\n        }\r\n    }\r\n}",
+						"variables": "{\r\n    \"id\": \"\"\r\n}"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUsersSubsAndProfile",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query {\r\n    getUsersSubsAndProfile {\r\n        id\r\n        firstName\r\n        userSubscribedTo\r\n        profile {\r\n            id\r\n            avatar\r\n        }\r\n    }\r\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserPostsSubs",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query ($id: ID) {\r\n    getUserPostsSubs (id: $id) {\r\n        id\r\n        firstName\r\n        lastName\r\n        subscribedToUser\r\n        posts {\r\n            id\r\n            title\r\n        }\r\n    }\r\n}",
+						"variables": "{\r\n    \"id\": \"\"\r\n}"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUsersWithSubs",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query {\r\n    getUsersWithSubs {\r\n        id\r\n        firstName\r\n        lastName\r\n        userSubscribedTo\r\n        subscribedToUser\r\n    }\r\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createUser",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation ($input: UserBody) {\r\n    createUser(input: $input) {\r\n            id \r\n            firstName\r\n            lastName \r\n            email\r\n            subscribedToUserIds\r\n        }\r\n}",
+						"variables": "{\r\n    \"input\": {\r\n            \"firstName\": \"Jack\", \r\n            \"lastName\": \"Reacher\", \r\n            \"email\": \"reacher@gmail.com\"\r\n    }\r\n}"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateUser",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation ($id: ID, $body: UserBody) {\r\n    updateUser(id: $id, body: $body) {\r\n            id \r\n            firstName\r\n            lastName \r\n            email\r\n            subscribedToUserIds\r\n        }\r\n}",
+						"variables": "{\r\n    \"id\": \"e96917f6-97a6-4c6c-802f-d9399b6532b4\", \r\n    \"body\": {\r\n            \"firstName\": \"Nick\", \r\n            \"lastName\": \"Fisher\", \r\n            \"email\": \"fisher@gmail.com\"\r\n    }\r\n}"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createProfile",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation ($input: ProfileBody) {\r\n    createProfile(input: $input) {\r\n            id\r\n            avatar\r\n            birthday\r\n            country\r\n            street\r\n            city\r\n            memberTypeId\r\n            userId\r\n        }\r\n}",
+						"variables": "{\r\n    \"input\": {\r\n            \"avatar\": \"q4g6j7\",\r\n            \"sex\": \"male\",\r\n            \"birthday\": 4,\r\n            \"country\": \"RB\",\r\n            \"street\": \"Shyshka\",\r\n            \"city\": \"Minsk\",\r\n            \"memberTypeId\": \"basic\",\r\n            \"userId\": \"1c2ea81b-f4fb-4001-b080-26eed5b9a02e\"\r\n    }\r\n}"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateProfile",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation ($id: ID, $body: ProfileBody) {\r\n    updateProfile(id: $id, body: $body) {\r\n            id\r\n            avatar\r\n            birthday\r\n            country\r\n            street\r\n            city\r\n            memberTypeId\r\n            userId\r\n    }\r\n}",
+						"variables": "{\r\n    \"id\": \"9d10a3d0-2ba7-4ef9-87be-6370c4477431\",\r\n    \"body\": {\r\n            \"avatar\": \"q4g6j7\",\r\n            \"sex\": \"male\",\r\n            \"birthday\": 4,\r\n            \"country\": \"RB\",\r\n            \"street\": \"Shyshka\",\r\n            \"city\": \"Minsk\",\r\n            \"memberTypeId\": \"basic\",\r\n            \"userId\": \"f82e649c-9fac-4c96-af71-653dc441ed71\"\r\n    }\r\n}"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createPost",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation ($input: PostBody) {\r\n    createPost(input: $input) {\r\n            id\r\n            title\r\n            content\r\n            userId\r\n        }\r\n}",
+						"variables": "{\r\n    \"input\": {\r\n            \"title\": \"Iron man\",\r\n            \"content\": \"I'm so strong!\",\r\n            \"userId\": \"1c2ea81b-f4fb-4001-b080-26eed5b9a02e\"\r\n    }\r\n}"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updatePost",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation ($id: ID, $body: PostBody) {\r\n    updatePost(id: $id, body: $body) {\r\n        id\r\n        title\r\n        content\r\n        userId\r\n    }\r\n}",
+						"variables": "{\r\n    \"id\": \"d62752b1-3e48-4eb6-b532-727d8b9e3981\",\r\n    \"body\": {\r\n            \"title\": \"Iron woman\",\r\n            \"content\": \"I'm so strong!\",\r\n            \"userId\": \"6cef0e1e-e98b-49b3-9358-4a559b25fb96\"\r\n    }\r\n}"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateMemberType",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation ($id: ID, $body: MemberTypeBody) {\r\n    updateMemberType(id: $id, body: $body) {\r\n        id\r\n        discount\r\n        monthPostsLimit\r\n    }\r\n}",
+						"variables": "{\r\n    \"id\": \"basic\",\r\n    \"body\": {\r\n            \"discount\": 15,\r\n            \"monthPostsLimit\": 20\r\n        \r\n    }\r\n}"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
