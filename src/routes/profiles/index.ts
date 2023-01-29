@@ -42,10 +42,15 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       const profileBody = request.body;
       const { userId, memberTypeId } = profileBody;
       try {
+        const user = await fastify.db.users.findOne({key: 'id', equals: userId });
+        if(!user) throw new Error(`User with id=${userId} not exist`);
+    
         const memberTypes = await fastify.db.memberTypes.findOne({key: 'id', equals: memberTypeId });
         if(!memberTypes) throw new Error(`Member type with id=${memberTypeId} not exist`);
+        
         const foundProfile = await fastify.db.profiles.findOne({key: 'userId', equals: userId });
         if(foundProfile) throw new Error(`Profile with userId=${memberTypeId} already exist`);
+        
         const profile = await fastify.db.profiles.create(profileBody);
         if(!profile) throw new Error(`User not created`);
         reply.code(201);

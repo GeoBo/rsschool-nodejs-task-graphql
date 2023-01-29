@@ -42,6 +42,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     async function (request, reply): Promise<PostEntity | HttpError> {
       const postBody = request.body;
       try {
+        const user = await fastify.db.users.findOne({key: 'id', equals: postBody.userId });
+        if(!user) throw new Error(`User with id=${postBody.userId} not exist`);
+        
         const post = await fastify.db.posts.create(postBody);
         if(!post) throw new Error(`User not created`);
         reply.code(201);
