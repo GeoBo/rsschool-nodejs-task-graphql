@@ -231,6 +231,61 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
             }
           },
 
+          subscribeTo: {
+            type: userType,
+            args: {
+              id: { type: GraphQLID },
+              userId: { type: GraphQLID }
+            },
+            resolve: async (source, args) => {
+              const id = args?.id;
+              const userId = args?.userId;
+
+              if(id === userId) throw new Error("you can't subscribe to yourself");
+
+              const user = await fastify.db.users.findOne({key: 'id', equals: userId });
+              if(!user) throw new Error(`user with id=${id} not exist`);
+              
+              const targetUser = await fastify.db.users.findOne({key: 'id', equals: id });
+              if(!targetUser) throw new Error(`user with id=${userId} not exist`);
+              
+              if(user.subscribedToUserIds.indexOf(id) == -1) {
+                const subscribedToUserIds = user.subscribedToUserIds;
+                subscribedToUserIds.push(id);
+                return fastify.db.users.change(userId, {subscribedToUserIds});
+              }
+              throw new Error(`User with id=${id} already subscribed`);
+            }
+          },
+
+          unsubscribeFrom: {
+            type: userType,
+            args: {
+              id: { type: GraphQLID },
+              userId: { type: GraphQLID }
+            },
+            resolve: async (source, args) => {
+              const id = args?.id;
+              const userId = args?.userId;
+
+              if(id === userId) throw new Error("you can't unsubscribe from yourself");
+
+              const user = await fastify.db.users.findOne({key: 'id', equals: userId });
+              if(!user) throw new Error(`user with id=${id} not exist`);
+              
+              const targetUser = await fastify.db.users.findOne({key: 'id', equals: id });
+              if(!targetUser) throw new Error(`user with id=${userId} not exist`);
+              
+              const pos = user.subscribedToUserIds.indexOf(id);
+              if(pos !== -1) {
+                const subscribedToUserIds = user.subscribedToUserIds;
+                subscribedToUserIds.splice(pos, 1);
+                return fastify.db.users.change(userId, {subscribedToUserIds});
+              }
+              throw new Error(`User with id=${id} was not subcribed`);
+            }
+          },
+
           //profiles
 
           createProfile: {

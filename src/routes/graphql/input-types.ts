@@ -40,4 +40,4 @@ const memberTypeBodyType = new GraphQLInputObjectType({
   }
 });
 
-export {userBodyType, profileBodyType, postBodyType, memberTypeBodyType}
+export {userBodyType, profileBodyType, postBodyType, memberTypeBodyType }

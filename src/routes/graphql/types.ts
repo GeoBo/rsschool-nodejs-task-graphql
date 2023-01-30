@@ -68,20 +68,5 @@ const allAboutUserType = new GraphQLObjectType({
   }
 });
 
-// const userSubscribedType = new GraphQLObjectType({
-//   name: 'AllAboutUser',
-//   fields: {
-//     id: { type: GraphQLID },
-//     firstName: { type: GraphQLString },
-//     lastName: { type: GraphQLString },
-//     email: { type: GraphQLString },
-//     subscribedToUserIds: { type: new GraphQLList(GraphQLString) },
-//     userSubscribedTo: { type: new GraphQLList(GraphQLString) },
-//     profile: {
-//       type: profileType,
-//     },
-//   }
-// });
-
 export {userType, profileType, postType, memberTypeType, allAboutUserType}
         
