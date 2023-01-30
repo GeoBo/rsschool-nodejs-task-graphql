@@ -123,7 +123,7 @@
 					"mode": "graphql",
 					"graphql": {
 						"query": "query ($id: ID) {\r\n    getAllAboutUser (id: $id) {\r\n        id\r\n        firstName\r\n        lastName\r\n        email\r\n        subscribedToUserIds\r\n        profile {\r\n            id\r\n            avatar\r\n        }\r\n        posts {\r\n            id\r\n            title\r\n        }\r\n        memberType {\r\n            id\r\n            discount\r\n        }\r\n    }\r\n}",
-						"variables": "{\r\n    \"id\": \"\"\r\n}"
+						"variables": "{\r\n    \"id\": \"49ee0e1-1adb-460a-996c-6c36df7aff99\"\r\n}"
 					}
 				},
 				"url": {
@@ -195,7 +195,7 @@
 					"mode": "graphql",
 					"graphql": {
 						"query": "query ($id: ID) {\r\n    getUserPostsSubs (id: $id) {\r\n        id\r\n        firstName\r\n        lastName\r\n        subscribedToUser\r\n        posts {\r\n            id\r\n            title\r\n        }\r\n    }\r\n}",
-						"variables": "{\r\n    \"id\": \"\"\r\n}"
+						"variables": "{\r\n    \"id\": \"e8431990-f33c-4e9c-91c0-1c2c0d749f76\"\r\n}"
 					}
 				},
 				"url": {
@@ -321,6 +321,78 @@
 			"response": []
 		},
 		{
+			"name": "subscribeTo",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation ($id: ID, $userId: ID) {\r\n    subscribeTo(id: $id, userId: $userId) {\r\n            id \r\n            firstName\r\n            subscribedToUserIds\r\n        }\r\n}",
+						"variables": "{\r\n    \"id\": \"d0f3af05-913a-4a31-9e94-9733ab0d15df\", \r\n    \"userId\": \"188182a3-bc88-4ec4-88f7-a2db1012224d\"\r\n}"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "unsubscribeFrom",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/graphql",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation ($id: ID, $userId: ID) {\r\n    unsubscribeFrom (id: $id, userId: $userId) {\r\n            id \r\n            firstName\r\n            subscribedToUserIds\r\n        }\r\n}",
+						"variables": "{\r\n    \"id\": \"d0f3af05-913a-4a31-9e94-9733ab0d15df\", \r\n    \"userId\": \"188182a3-bc88-4ec4-88f7-a2db1012224d\"\r\n}"
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graphql",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "createProfile",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {}
@@ -339,7 +411,7 @@
 					"mode": "graphql",
 					"graphql": {
 						"query": "mutation ($input: ProfileBody) {\r\n    createProfile(input: $input) {\r\n            id\r\n            avatar\r\n            birthday\r\n            country\r\n            street\r\n            city\r\n            memberTypeId\r\n            userId\r\n        }\r\n}",
-						"variables": "{\r\n    \"input\": {\r\n            \"avatar\": \"q4g6j7\",\r\n            \"sex\": \"male\",\r\n            \"birthday\": 4,\r\n            \"country\": \"RB\",\r\n            \"street\": \"Shyshka\",\r\n            \"city\": \"Minsk\",\r\n            \"memberTypeId\": \"basic\",\r\n            \"userId\": \"1c2ea81b-f4fb-4001-b080-26eed5b9a02e\"\r\n    }\r\n}"
+						"variables": "{\r\n    \"input\": {\r\n            \"avatar\": \"q4g6j7\",\r\n            \"sex\": \"male\",\r\n            \"birthday\": 4,\r\n            \"country\": \"RB\",\r\n            \"street\": \"Shyshka\",\r\n            \"city\": \"Minsk\",\r\n            \"memberTypeId\": \"basic\",\r\n            \"userId\": \"dba3f905-8aae-4684-8884-805b12d0fb39\"\r\n    }\r\n}"
 					}
 				},
 				"url": {
@@ -411,7 +483,7 @@
 					"mode": "graphql",
 					"graphql": {
 						"query": "mutation ($input: PostBody) {\r\n    createPost(input: $input) {\r\n            id\r\n            title\r\n            content\r\n            userId\r\n        }\r\n}",
-						"variables": "{\r\n    \"input\": {\r\n            \"title\": \"Iron man\",\r\n            \"content\": \"I'm so strong!\",\r\n            \"userId\": \"1c2ea81b-f4fb-4001-b080-26eed5b9a02e\"\r\n    }\r\n}"
+						"variables": "{\r\n    \"input\": {\r\n            \"title\": \"Iron man\",\r\n            \"content\": \"I'm so strong!\",\r\n            \"userId\": \"dba3f905-8aae-4684-8884-805b12d0fb39\"\r\n    }\r\n}"
 					}
 				},
 				"url": {

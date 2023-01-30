@@ -1,4 +1,5 @@
 import { FastifyPluginAsyncJsonSchemaToTs } from '@fastify/type-provider-json-schema-to-ts';
+import depthLimit = require( 'graphql-depth-limit' );
 import { ExecutionResult } from 'graphql/execution';
 import { graphql } from 'graphql/graphql';
 import { GraphQLList, GraphQLObjectType, GraphQLSchema, GraphQLID } from 'graphql/type';
@@ -15,6 +16,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     {
       schema: {
         body: graphqlBodySchema,
+        validationRules: [ depthLimit(1) ]
       },
     },
     async function (request, reply) {
